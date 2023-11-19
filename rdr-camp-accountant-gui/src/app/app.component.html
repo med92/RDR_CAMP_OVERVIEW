@@ -1,0 +1,200 @@
+
+<main class="main">
+  <div class="container">
+    <div class="row ">
+      <div class="col-sm-4">
+        <h1> DONATION </h1>
+        <p-chart type="pie" [data]="dataDonation" [options]="optionsDonation" width="400" height="400" ></p-chart>
+        <br>
+        <p-dropdown [options]="listOfSalesDonation" [(ngModel)]="selectedSaleDonation" placeholder="Select a sale"
+                    (ngModelChange)="onChangeDonation($event)"></p-dropdown>
+
+      </div>
+      <div class="divider" role="separator" aria-label="Divider"></div>
+
+      <div class="col-sm-4">
+        <h1> SUPPLIES </h1>
+        <p-chart type="pie" [data]="dataDelivery" [options]="optionsDelivery" width="400" height="400"></p-chart>
+        <br>
+        <p-dropdown [options]="listOfSalesDelivery" [(ngModel)]="selectedSaleDelivery" placeholder="Select a sale"
+                    (ngModelChange)="onChangeDelivery($event)"></p-dropdown>
+      </div>
+      <div class="col-sm-4">
+        <h1> ALL TIME DONATION CONTRIBUTION</h1>
+        <p-chart type="pie" [data]="dataAllTime" [options]="optionsAllTime" width="400" height="400"></p-chart>
+        <br>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h1> LEDGER OPERATIONS</h1>
+        <p-table [value]="stats.userLedgerOperations" [tableStyle]="{'min-width': '60rem'}" [paginator]="true"  [rowsPerPageOptions]="[10, 25, 50, 100]"
+                 [rows]="25"
+                 [totalRecords]="stats.userLedgerOperations.length">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="user" style="width:20%">Player
+                <p-sortIcon field="user"></p-sortIcon>
+              </th>
+              <th pSortableColumn="transaction" style="width:20%">Transaction Type
+                <p-sortIcon field="transaction"></p-sortIcon>
+              </th>
+              <th pSortableColumn="amount" style="width:20%">Amount
+                <p-sortIcon field="amount"></p-sortIcon>
+              </th>
+              <th pSortableColumn="transactionDate" style="width:20%">Date
+                <p-sortIcon field="transactionDate"></p-sortIcon>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-ledgerOp>
+            <tr>
+              <td><strong>{{ledgerOp.user}}</strong></td>
+              <td>
+                <div
+                  [ngClass]="{'outofstock': ledgerOp.transaction === 'Withdrew from clan ledger','instock': ledgerOp.transaction  === 'Deposited to clan ledger', 'lowstock': ledgerOp.transaction  === 'Added Money To Tax Ledger'}">
+                  {{ledgerOp.transaction}}
+                </div>
+              </td>
+              <td>
+                <div
+                  [ngClass]="{'outofstock': ledgerOp.transaction === 'Withdrew from clan ledger','instock': ledgerOp.transaction  === 'Deposited to clan ledger', 'lowstock': ledgerOp.transaction  === 'Added Money To Tax Ledger'}">
+                  {{ledgerOp.amount | currency: 'USD'}}</div>
+              </td>
+              <td>{{ledgerOp.transactionDate | date: 'short'}}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="col">
+        <h1> TOTAL LEDGER / TAX CONTRIBUTION</h1>
+        <p-table [value]="stats.playerTotalLedgerContributions" [tableStyle]="{'min-width': '60rem'}" [paginator]="true" [rowsPerPageOptions]="[10, 25, 50, 100]"
+                 [rows]="10"
+                 [totalRecords]="stats.playerTotalLedgerContributions.length">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="player" style="width:20%">Player
+                <p-sortIcon field="player"></p-sortIcon>
+              </th>
+              <th pSortableColumn="ledgerContribution" style="width:20%">LEDGER CONTRIBUTION
+                <p-sortIcon field="ledgerContribution"></p-sortIcon>
+              </th>
+              <th pSortableColumn="taxContribution" style="width:20%">TAX CONTRIBUTION
+                <p-sortIcon field="taxContribution"></p-sortIcon>
+              </th>
+
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-ptlc>
+            <tr>
+              <td><strong>{{ptlc.player}}</strong></td>
+              <td>
+                <div
+                  [ngClass]="{'outofstock': ptlc.ledgerContribution < 0,'instock': ptlc.ledgerContribution  > 0, 'lowstock': ptlc.ledgerContribution  === 0}">
+                  {{ptlc.ledgerContribution | currency: 'USD'}}</div>
+              </td>
+              <td>
+                <div
+                  [ngClass]="{'outofstock': ptlc.taxContribution < 0,'instock': ptlc.taxContribution  > 0, 'lowstock': ptlc.taxContribution  === 0}">
+                  {{ptlc.taxContribution | currency: 'USD'}}</div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div class="col">
+        <h1> CAMP CHEST INTERACTIONS</h1>
+
+        <p-table
+          #dt1
+          [value]="stats.campChestInteractions"
+          dataKey="player"
+          [rows]="25"
+          [showCurrentPageReport]="true"
+          [rowsPerPageOptions]="[10, 25, 50, 100]"
+          [loading]="loading"
+          [paginator]="true"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+          [globalFilterFields]="['player', 'actions', 'item', 'actionValue' ,'timestamp']"
+        >
+
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="min-width:15rem" pSortableColumn="player">
+                <div class="flex align-items-center">
+                  player
+                  <p-columnFilter type="text" field="player" display="menu"></p-columnFilter>
+                  <p-sortIcon field="player"></p-sortIcon>
+                </div>
+              </th>
+              <th style="min-width:15rem" pSortableColumn="actions">
+                <div class="flex align-items-center">
+                  actions
+                  <p-columnFilter type="text" field="actions" display="menu"></p-columnFilter>
+                  <p-sortIcon field="player"></p-sortIcon>
+                </div>
+              </th>
+              <th style="min-width:15rem" pSortableColumn="item">
+                <div class="flex align-items-center">
+                  item
+                  <p-columnFilter type="text" field="item" display="menu"></p-columnFilter>
+                  <p-sortIcon field="item"></p-sortIcon>
+                </div>
+              </th>
+              <th style="min-width:10rem" pSortableColumn="actionValue">
+                <div class="flex align-items-center">
+                  actionValue
+                  <p-columnFilter type="numeric" field="actionValue" display="menu"></p-columnFilter>
+                  <p-sortIcon field="actionValue"></p-sortIcon>
+                </div>
+              </th>
+              <th style="min-width:10rem" pSortableColumn="timestamp">
+                <div class="flex align-items-center">
+                  timestamp
+                  <p-columnFilter type="date" field="timestamp" display="menu"></p-columnFilter>
+                  <p-sortIcon field="actionValue"></p-sortIcon>
+                </div>
+              </th>
+
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-campChestInt>
+            <tr>
+              <td>
+                <strong>{{ campChestInt.player }}</strong>
+              </td>
+              <td><div
+                [ngClass]="{'outofstock': campChestInt.actions === 'Withdraw item','instock': campChestInt.actions  === 'Deposited item'}">
+                {{ campChestInt.actions  }}
+              </div>
+              </td>
+              <td>
+                <strong> {{ campChestInt.item  }}</strong>
+              </td>
+
+              <td>
+                <div
+                  [ngClass]="{'lowstock': campChestInt.actionValue  > 10}">
+                  {{ campChestInt.actionValue  }}</div>
+
+              </td>
+              <td>
+                {{ campChestInt.timestamp | date: 'short' }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7">No Interaction found.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+
+<router-outlet></router-outlet>
